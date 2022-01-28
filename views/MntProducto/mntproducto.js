@@ -1,6 +1,10 @@
 var tabla;
 
 function init(){
+    //Llamamos al formulario
+    $('#producto_form').on("submit",function(e){
+        guardaryeditar(e);
+    });
 
 }
 
@@ -55,6 +59,74 @@ $(document).ready(function(){
             }
         }
     }).DataTable();
+});
+
+function guardaryeditar(e){
+    //Prevenimos que se de click dos veces al boton de guardar
+    e.preventDefault();
+    //Variable form_data
+    var formData = new FormData($("#producto_form")[0]);
+
+    $.ajax({
+        //Ruta de controlador con la opcion
+        url: "../../controller/productos.controller.php?op=guardaryeditar",
+        //Tipo de accion
+        type: "POST",
+        data: formData,
+        contentType: false,
+        processData: false,
+        success: function(datos){
+            console.log(datos);
+            $('#producto_form')[0].reset();
+            $("#modalmnt").modal('hide');
+            $('#producto_data').DataTable().ajax.reload();
+
+            swal.fire(
+                'Registro!',
+                'Registro creado correctamente.',
+                'success'
+            )
+        }
+    });
+}
+
+function editar(prod_id){
+    console.log(prod_id);
+}
+
+function eliminar(prod_id){
+
+    swal.fire({
+        title: "CRUD",
+        text: "Desea eliminar el registro?",
+        icon: "error",
+        showCancelButton: true,
+        confirmButtonText: "Si, Eliminalo",
+        cancelButtonText: "No, Cancelalo",
+        reverseButtons:true
+    }).then((result)=>{
+        if(result.isConfirmed){
+
+            $.post("../../controller/productos.controller.php?op=eliminar",{prod_id:prod_id},function (data){
+                $('#producto_data').DataTable().ajax.reload();
+            });
+
+            
+            
+
+            swal.fire(
+                'Eliminado!',
+                'El registro se elimino correctamente.',
+                'success'
+            )
+        }
+    })
+
+}
+
+$(document).on("click","#btnnuevo", function(){
+    $('#mdltitulo').html('Nuevo Registro');
+    $('#modalmnt').modal('show');
 });
 
 init();
